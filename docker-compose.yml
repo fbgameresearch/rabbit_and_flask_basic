@@ -1,0 +1,37 @@
+redis:
+  image: redis:latest
+  ports:
+    - "6379:6379"
+
+rabbit:
+  image: rabbitmq:3-management
+  ports:
+    - "4369:4369"
+    - "5672:5672"
+    - "15672:15672"
+    - "25672:25672"
+
+publisher:
+  build: ./publisher
+  command: python client_app.py
+  entrypoint: ["./docker-entrypoint.sh"]
+  links:
+    - rabbit:rabbit
+
+consumer:
+  build: ./consumer
+  command: python consumer_app.py
+  entrypoint: ["./docker-entrypoint.sh"]
+  links:
+    - redis:redis
+    - rabbit:rabbit
+
+api:
+  build: ./api
+  command: python main.py
+  entrypoint: ["./docker-entrypoint.sh"]
+  ports:
+    - "5000:5000"
+  links:
+    - redis:redis
+    - rabbit:rabbit
