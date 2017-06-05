@@ -23,9 +23,9 @@ def callback(ch, method, properties, body):
     # print(" [x] Received %r" % body)
     data = json.loads(body)
     # print("ID: {}".format(data['id']))
-    r.set("ram",data[0]['general_ram_util'])
-    r.set("cpu",data[0]['general_cpu_util'])
-    r.set("net",data[0]['general_net_util'])
+    r.set("ram",data['ram'])
+    r.set("cpu",data['cpu'])
+    r.set("net",data['net'])
 
 channel.basic_consume(callback,
                       queue=queue_name,

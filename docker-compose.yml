@@ -3,6 +3,11 @@ redis:
   ports:
     - "6379:6379"
 
+postgres:
+  image: postgres
+  ports:
+    - "5432:5432"
+
 rabbit:
   image: rabbitmq:3-management
   ports:
