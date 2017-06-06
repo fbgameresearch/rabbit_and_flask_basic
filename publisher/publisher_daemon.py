@@ -8,7 +8,7 @@ import uuid
 
 docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbit'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 
 channel = connection.channel()
 

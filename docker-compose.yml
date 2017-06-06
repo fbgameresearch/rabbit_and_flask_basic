@@ -16,12 +16,12 @@ rabbit:
     - "15672:15672"
     - "25672:25672"
 
-publisher:
-  build: ./publisher
-  command: python client_app.py
-  entrypoint: ["./docker-entrypoint.sh"]
-  links:
-    - rabbit:rabbit
+# publisher:
+#   build: ./publisher
+#   command: python client_app.py
+#   entrypoint: ["./docker-entrypoint.sh"]
+#   links:
+#     - rabbit:rabbit
 
 consumer:
   build: ./consumer
