@@ -10,14 +10,10 @@ app = Flask(__name__)
 def hello_world():
     return 'Flask Dockerized'
 
-@app.route("/util/cpu", methods=['POST', 'GET'])
+@app.route("/util/cpu")
 def cpu_with_json():
-    if request.method == 'GET':
-        response = {"cpu_util": str(r.get('cpu'))}
-        return json.dumps(response)
-    if request.method == 'POST':
-        r.set("cpu",request.form['cpu'])
-        return json.dumps(response)
+    response = {"cpu_util": str(r.get('cpu'))}
+    return json.dumps(response)
 
 
 @app.route("/util/ram")
