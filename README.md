@@ -62,3 +62,8 @@ docker-compose up --build
 ```
 ### further documentation
 - contents of the package sent from each client https://gist.github.com/spekulant/1812788f8505fa521eab3e1bf2f85897
+
+#### external ports
+- rabbit *15672* and *5672*
+- redis *6379*
+- flask api *5000*
