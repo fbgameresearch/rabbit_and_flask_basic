@@ -1,2 +1,2 @@
 #!/bin/bash
-sh -c './publisher_daemon.py'
+sh -c 'python publisher_daemon.py'

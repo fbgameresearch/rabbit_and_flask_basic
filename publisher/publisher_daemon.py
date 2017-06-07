@@ -8,7 +8,7 @@ import uuid
 
 docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='fiware_main'))
 
 channel = connection.channel()
 
@@ -45,12 +45,12 @@ def per_docker():
     # print('data sent')
     return respond
 
-def every_two_seconds():
-    threading.Timer(2.0, every_two_seconds).start()
+def every_n_seconds():
+    threading.Timer(5.0, every_n_seconds).start()
     per_docker_data = per_docker()
     channel.basic_publish(exchange='util_data',
                           routing_key='',
                           body=per_docker_data)
 
 
-every_two_seconds()
+every_n_seconds()
