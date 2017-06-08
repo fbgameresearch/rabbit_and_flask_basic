@@ -10,4 +10,3 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 ENTRYPOINT ./docker-entrypoint.sh
-CMD python client_app.py
