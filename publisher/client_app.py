@@ -5,6 +5,7 @@ import ps_obtain
 import json
 import docker
 import uuid
+import random as r
 
 docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
 
@@ -15,6 +16,7 @@ channel = connection.channel()
 channel.exchange_declare(exchange='util_data',
                          type='fanout')
 
+hostid = int(r.random()*100000)
 
 def cpu_v():
     # return json.dumps({'utilization': ps_obtain.cpu_util_value()})
@@ -35,7 +37,7 @@ def per_docker():
     inf = docker_client.containers.list()
     data = []
     data.append({
-        "host_id": uuid.uuid4().hex,
+        "host_id": hostid,
         "general_ram_util": ram_v(),
         "general_cpu_util": cpu_v(),
         "general_net_util": net_v()})

@@ -3,10 +3,22 @@ redis:
   ports:
     - "6379:6379"
 
-postgres:
-  image: postgres
+# database:
+#   build: ./database
+#   ports:
+#     - "5432:5432"
+
+dbpostgres:
+  # image: postgres
+  build: ./database
+  volumes:
+    - ~/sharedvolumes/postgresql:/var/lib/postgresql
   ports:
     - "5432:5432"
+  environment:
+    POSTGRES_USER: pguser
+    POSTGRES_PASSWORD: pguser
+    POSTGRES_DB: utilization
 
 rabbit:
   image: rabbitmq:3-management
