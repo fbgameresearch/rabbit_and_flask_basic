@@ -1,8 +1,3 @@
-redis:
-  image: redis:latest
-  ports:
-    - "6379:6379"
-
 # database:
 #   build: ./database
 #   ports:
@@ -28,20 +23,25 @@ rabbit:
     - "15672:15672"
     - "25672:25672"
 
-# publisher:
-#   build: ./publisher
-#   command: python client_app.py
-#   entrypoint: ["./docker-entrypoint.sh"]
-#   links:
-#     - rabbit:rabbit
+publisher:
+  build: ./publisher
+  environment:
+    METACIRCULARITY: 1
+    INTERVAL: 10
+  command: python client_app.py
+  entrypoint: ["./docker-entrypoint.sh"]
+  links:
+    - rabbit:rabbit
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
 
 consumer:
   build: ./consumer
   command: python consumer_app.py
   entrypoint: ["./docker-entrypoint.sh"]
   links:
-    - redis:redis
     - rabbit:rabbit
+    - dbpostgres:dbpostgres
 
 api:
   build: ./api
@@ -50,5 +50,5 @@ api:
   ports:
     - "5000:5000"
   links:
-    - redis:redis
     - rabbit:rabbit
+    - dbpostgres:dbpostgres

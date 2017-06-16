@@ -24,6 +24,7 @@ Build project from the main catalog using the command below, you might need to g
 docker-compose up --build
 ```
 * Visit [http://localhost:5000/](http://localhost:5000/) to check if the build went as planned.
+* Visit [http://localhost:5000/](http://localhost:5000/documentation) to see the API endpoints documentation.
 * Visit [http://localhost:15672/](http://localhost:15672/) to see how the packages are flying around. (login:guest / password:guest)
 
 ## Building external client (utilization report publisher)
