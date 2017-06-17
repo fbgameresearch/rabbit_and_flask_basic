@@ -71,21 +71,35 @@ def callback(ch, method, properties, body):
                 try:
                     name = data[indx]['name']
                     read_time = data[indx]['read']
-                    ram_usage = data[indx]['memory_stats']['usage']
-                    ram_limit = data[indx]['memory_stats']['limit']
-                    cpu_usage = data[indx]['cpu_stats']['cpu_usage']['total_usage']
-                    net_rx = data[indx]['networks']['eth0']['rx_bytes']
-                    net_tx = data[indx]['networks']['eth0']['tx_bytes']
+                    try:
+                        ram_usage = data[indx]['memory_stats']['usage']
+                        ram_limit = data[indx]['memory_stats']['limit']
+                    except:
+                        ram_usage=None
+                        ram_limit=None
+                    try:
+                        cpu_usage = data[indx]['cpu_stats']['cpu_usage']['total_usage']
+                    except:
+                        cpu_usage=None
+                    try:
+                        net_rx = data[indx]['networks']['eth0']['rx_bytes']
+                        net_tx = data[indx]['networks']['eth0']['tx_bytes']
+                    except:
+                        net_rx=None
+                        net_tx=None
                 except:
                     logger.error(
                         'Failed parsing data from docker-specific json')
                 try:
-                    cur.execute("INSERT INTO ram (host_id, name, time, usage_ram, limit_ram) VALUES (%s, %s, %s, %s, %s)",
-                                (host_id, str(name), int(ts), str(ram_usage / ram_limit), str(ram_limit)))
-                    cur.execute("INSERT INTO cpu (host_id, name, time, usage_cpu) VALUES (%s, %s, %s, %s)",
-                                (host_id, str(name), str(ts), str(cpu_usage)))
-                    cur.execute("INSERT INTO net (host_id, name, time, rx_bytes, tx_bytes) VALUES (%s, %s, %s, %s, %s)",
-                                (host_id, str(name), str(ts), str(net_rx), str(net_tx)))
+                    if ram_usage:
+                        cur.execute("INSERT INTO ram (host_id, name, time, usage_ram, limit_ram) VALUES (%s, %s, %s, %s, %s)",
+                                    (host_id, str(name), int(ts), str(ram_usage / ram_limit), str(ram_limit)))
+                    if cpu_usage:
+                        cur.execute("INSERT INTO cpu (host_id, name, time, usage_cpu) VALUES (%s, %s, %s, %s)",
+                                    (host_id, str(name), str(ts), str(cpu_usage)))
+                    if net_rx:
+                        cur.execute("INSERT INTO net (host_id, name, time, rx_bytes, tx_bytes) VALUES (%s, %s, %s, %s, %s)",
+                                    (host_id, str(name), str(ts), str(net_rx), str(net_tx)))
                 except:
                     logger.error(
                         'Failed inserting docker-specific data to database')
