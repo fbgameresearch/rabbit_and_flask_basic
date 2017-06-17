@@ -73,10 +73,16 @@ def containers_list(host_id):
         rows = cur.fetchall()
         for row in rows:
             response.append(row[0])
+        if len(response)==1 and response[0]=="root":
+            response = []
+            cur.execute("SELECT DISTINCT name from cpu where host_id=%d" % host_id)
+            rows = cur.fetchall()
+            for row in rows:
+                response.append(row[0])
         cur.close()
         conn.close()
     except:
-        logger.error('Unable to fetch host_id from ram table')
+        logger.error('Unable to fetch host_id from ram/cpu table')
         return 400
     return json.dumps(response)
 
