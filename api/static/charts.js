@@ -1,21 +1,16 @@
 var chart1; // global
 
 function requestData(addr, ser, tout) {
-    $.ajax({
-        url: addr,
-        success: function(resp) {
-            var point = JSON.parse(resp);
-            var series = chart1.series[ser],
-                x = (new Date()).getTime(),
-                y = point["root"],
-                shift = series.data.length > 30;
-            // var d = new Date();
-            // console.log("fetched date: " + d.getHours()+ "-" + d.getMinutes() + "-" + d.getSeconds());
-            chart1.series[ser].addPoint([x, y], true, shift);
-            setTimeout(requestData(addr, ser, tout), tout);
-        },
-        cache: false
-    });
+  $.get(addr, function(data){
+    var point = JSON.parse(data);
+    console.log(point["root"]);
+    var series = chart1.series[ser],
+        x = (new Date()).getTime(),
+        y = parseFloat(point["root"]),
+        shift = series.data.length > 30;
+    chart1.series[ser].addPoint([x, y], true, shift);
+    setTimeout(requestData.bind(null, addr, ser, tout), tout);
+  });
 }
 
 $(document).ready(function() {
@@ -23,16 +18,14 @@ $(document).ready(function() {
     var host_id = $('#host_id').data("host");
     var ram_url = "/util/single/ram/"+host_id;
     var cpu_url = "/util/single/cpu/"+host_id;
-    console.log(host_id);
-    console.log(ram_url);
     chart1 = new Highcharts.chart('cpu', {
         chart: {
             type: 'spline',
             animation: Highcharts.svg, // don't animate in old IE
             marginRight: 10,
             events: {
-                load: requestData(ram_url, 0, 10000),
-                load: requestData(cpu_url, 1, 10000)
+                load: requestData.bind(null, ram_url, 0, 10000),
+                load: requestData.bind(null, cpu_url, 1, 10000)
             }
         },
         title: {
