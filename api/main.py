@@ -4,10 +4,11 @@ import logging
 import psycopg2
 from flask.ext.autodoc.autodoc import Autodoc
 import re
-
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 auto = Autodoc(app)
+CORS(app)
 
 # create logger with 'spam_application'
 logger = logging.getLogger('API')
