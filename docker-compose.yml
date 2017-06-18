@@ -27,7 +27,7 @@ publisher:
   build: ./publisher
   environment:
     METACIRCULARITY: 1
-    INTERVAL: 10
+    INTERVAL: 5
   command: python client_app.py
   entrypoint: ["./docker-entrypoint.sh"]
   links:

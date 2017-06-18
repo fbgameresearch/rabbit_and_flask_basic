@@ -1,8 +1,9 @@
-from flask import Flask
+from flask import Flask, render_template, abort
 import json
 import logging
 import psycopg2
 from flask.ext.autodoc.autodoc import Autodoc
+import re
 
 
 app = Flask(__name__)
@@ -42,7 +43,7 @@ def hosts_list():
             "dbname='utilization' user='pguser' host='dbpostgres' password='pguser'")
     except:
         logger.error('Unable to esetablish connection with database')
-        return 400
+        return abort(400)
     try:
         cur = conn.cursor()
         cur.execute("SELECT DISTINCT host_id from ram")
@@ -53,8 +54,60 @@ def hosts_list():
         conn.close()
     except:
         logger.error('Unable to fetch host_id from ram table')
-        return 400
+        return abort(400)
+    # global_hosts_list=response
     return json.dumps(response)
+
+@app.route("/monitor")
+@auto.doc()
+def monitor():
+    count = []
+    try:
+        conn = psycopg2.connect(
+            "dbname='utilization' user='pguser' host='dbpostgres' password='pguser'")
+    except:
+        logger.error('Unable to esetablish connection with database')
+        return abort(400)
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT host_id from cpu")
+        hosts = cur.fetchall()
+        for host in hosts:
+            cur.execute("SELECT DISTINCT name from cpu where host_id=%d" % host)
+            containers=cur.fetchall()
+            count.append(len(containers))
+        cur.close()
+        conn.close()
+        hosts_count = zip(hosts,count)
+    except:
+        logger.error('Unable to fetch host_id/name from cpu table')
+        return abort(400)
+    return render_template('hosts_list.html', hosts_count=hosts_count)
+
+
+@app.route("/monitor/<url_host_id>")
+@auto.doc()
+def monitor_detail(url_host_id):
+    host=int(re.search(r'\d+', url_host_id).group())
+    names = []
+    try:
+        conn = psycopg2.connect(
+            "dbname='utilization' user='pguser' host='dbpostgres' password='pguser'")
+    except:
+        logger.error('Unable to esetablish connection with database')
+        return abort(400)
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT DISTINCT name from cpu where host_id=%d" % host)
+        containers=cur.fetchall()
+        for name in containers:
+            names.append(name)
+        cur.close()
+        conn.close()
+    except:
+        logger.error('Unable to fetch host_id/name from cpu table')
+        return abort(400)
+    return render_template('host_view.html', host_id=host, names=names)
 
 
 @app.route("/list-containers/<int:host_id>")
@@ -66,7 +119,7 @@ def containers_list(host_id):
             "dbname='utilization' user='pguser' host='dbpostgres' password='pguser'")
     except:
         logger.error('Unable to esetablish connection with database')
-        return 400
+        return abort(400)
     try:
         cur = conn.cursor()
         cur.execute("SELECT DISTINCT name from ram where host_id=%d" % host_id)
@@ -83,7 +136,7 @@ def containers_list(host_id):
         conn.close()
     except:
         logger.error('Unable to fetch host_id from ram/cpu table')
-        return 400
+        return abort(400)
     return json.dumps(response)
 
 
@@ -95,14 +148,14 @@ def cpu_with_json(host_id):
         query = "SELECT name, usage_cpu FROM cpu where host_id=%d" % host_id
     except:
         logger.error('Wrong argument type for select request')
-        return 400
+        return abort(400)
     try:
         conn = psycopg2.connect(
             "dbname='utilization' user='pguser' host='dbpostgres' password='pguser'")
         cur = conn.cursor()
     except:
         logger.error('Unable to esetablish connection with database')
-        return 400
+        return abort(400)
     try:
         cur.execute(query)
         rows = cur.fetchall()
@@ -112,7 +165,7 @@ def cpu_with_json(host_id):
         conn.close()
     except:
         logger.error('Unable to execute select query on cpu table')
-        return 400
+        return abort(400)
     return json.dumps(response)
 
 
@@ -124,14 +177,14 @@ def ram_with_json(host_id):
         query = "SELECT name, usage_ram FROM ram where host_id=%d" % host_id
     except:
         logger.error('Wrong argument type for select request')
-        return 400
+        return abort(400)
     try:
         conn = psycopg2.connect(
             "dbname='utilization' user='pguser' host='dbpostgres' password='pguser'")
         cur = conn.cursor()
     except:
         logger.error('Unable to esetablish connection with database')
-        return 400
+        return abort(400)
     try:
         cur.execute(query)
         rows = cur.fetchall()
@@ -141,9 +194,8 @@ def ram_with_json(host_id):
         conn.close()
     except:
         logger.error('Unable to execute select query on ram table')
-        return 400
+        return abort(400)
     return json.dumps(response)
-
 
 @app.route("/util/single/net/<int:host_id>")
 @auto.doc()
@@ -153,14 +205,14 @@ def net_with_json(host_id):
         query = "SELECT name, tx_bytes FROM net where host_id=%d" % host_id
     except:
         logger.error('Wrong argument type for select request')
-        return 400
+        return abort(400)
     try:
         conn = psycopg2.connect(
             "dbname='utilization' user='pguser' host='dbpostgres' password='pguser'")
         cur = conn.cursor()
     except:
         logger.error('Unable to esetablish connection with database')
-        return 400
+        return abort(400)
     try:
         cur.execute(query)
         rows = cur.fetchall()
@@ -170,15 +222,14 @@ def net_with_json(host_id):
         conn.close()
     except:
         logger.error('Unable to execute select query on net table')
-        return 400
+        return abort(400)
     return json.dumps(response)
 
-#
-# @app.route("/util/ram")
-# def ram_with_json():
-#     response = {"ram_util": str(r.get('ram'))}
-#     return json.dumps(response)
 
+@app.route("/static/charts.js")
+@auto.doc()
+def static_chart():
+    return app.send_static_file('charts.js')
 
 @app.route('/documentation')
 def documentation():
@@ -186,4 +237,5 @@ def documentation():
 
 
 if __name__ == "__main__":
+    # global_hosts_list=[]
     app.run(debug=True, host='0.0.0.0')

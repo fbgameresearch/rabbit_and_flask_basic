@@ -1,0 +1,15 @@
+image: tmaier/docker-compose:latest
+
+services:
+  - docker:dind
+
+before_script:
+  - docker info
+  - docker-compose --version
+
+build_job:
+  stage: build
+  tags:
+    - docker
+  script:
+    - docker-compose build

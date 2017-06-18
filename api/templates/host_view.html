@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block navbar %}
+<meta id="host_id" data-host="{{host_id}}">
+<div class="row">
+  <h2>Host ID: <span style="color:grey">{{ host_id }}</span></h2>
+</div>
+<div class="row">
+  <div id="cpu"></div>
+</div>
+<div class="row">
+  <h4>list of active containers</h4>
+  <ul class="list-group">
+  {% for name in names %}
+    <li class="list-group-item">{{ name }}</li>
+  {% endfor %}
+  </ul>
+</div>
+<script type="text/javascript" src="/static/charts.js"></script>
+{% endblock %}
