@@ -24,15 +24,18 @@ Build project from the main catalog using the command below, you might need to g
 docker-compose up --build
 ```
 * Visit [http://localhost:5000/](http://localhost:5000/) to check if the build went as planned.
-* Visit [http://localhost:5000/](http://localhost:5000/documentation) to see the API endpoints documentation.
+* Visit [http://localhost:5000/documentation](http://localhost:5000/documentation) to see the API endpoints documentation.
+* Visit [http://localhost:5000/monitor](http://localhost:5000/monitor) to see the basic interface.
 * Visit [http://localhost:15672/](http://localhost:15672/) to see how the packages are flying around. (login:guest / password:guest)
 
 ## Building external client (utilization report publisher)
-Build project from the `publisher/` catalog using the command below. Mind the `<build_id>` at the end of `run` which is supposed to be replaced with image id which might look like: `e025501ce399`, you will find it at the very end of what the `docker build .` command outputted.
+It's super easy to connect new client to the server. I've created another repository where you have a docker-compose with single container serving as a agent for the main application. The only thing you have to keep in mind is the remote address of the main application which you have to type inside the docker-compose file under "environment" section
 
 ```
-docker build -t report_publisher .
-docker run --net=host -v /var/run/docker.sock:/var/run/docker.sock --name=publisher -d report_publisher
+cd ..
+git clone https://github.com/spekulant/external_publisher.git
+cd external_publisher
+docker-compose up --build
 ```
 ### Rebuilding
 
