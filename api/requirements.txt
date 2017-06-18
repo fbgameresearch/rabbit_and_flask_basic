@@ -13,3 +13,4 @@ six==1.10.0
 Werkzeug==0.12.1
 psycopg2==2.7.1
 flask-autodoc
+flask-cors
