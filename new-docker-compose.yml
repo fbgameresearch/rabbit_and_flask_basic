@@ -1,0 +1,60 @@
+version: "3"
+services:
+
+  db:
+    image: postgres:10
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: pguser1024
+      POSTGRES_PASSWORD: pguser1025
+      POSTGRES_DB: utildata
+
+  rabbit:
+    image: rabbitmq:3-management
+    expose:
+      - "4369"
+      - "5672"
+      - "15672"
+      - "25672"
+    ports:
+      - "15672:15672"
+
+  publisher:
+    build: ./publisher
+    environment:
+      METACIRCULARITY: 1
+      INTERVAL: 5
+    command: python client_app.py
+    entrypoint: ["./docker-entrypoint.sh"]
+    links:
+      - rabbit
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  consumer:
+    build: ./consumer
+    command: python consumer_app.py
+    entrypoint: ["./docker-entrypoint.sh"]
+    depends_on:
+      - db
+      - rabbit
+    links:
+      - rabbit
+      - db
+
+  api:
+    build: ./api
+    command: python main.py
+    entrypoint: ["./docker-entrypoint.sh"]
+    ports:
+      - "5000:5000"
+    links:
+      - rabbit
+      - db
+    depends_on:
+      - db
+      - rabbit
+
+volumes:
+  db-data:
